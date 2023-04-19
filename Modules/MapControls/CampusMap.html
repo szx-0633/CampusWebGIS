@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>校园地图</title>
+    <link href="../../css/ol.css" rel="stylesheet" type="text/css" />
+    <script src="../../libs/ol5/ol.js" type="text/javascript"></script>
+    <!-- 引入第三方插件库 -->
+    <script src="../../libs/jquery-1.11.2.min.js" type="text/javascript"></script>
+    <script src="../../libs/ol5/proj4.js" type="text/javascript"></script>
+    <!--导入本页面外部样式表-->
+    <link href="../../css/style.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        #mapCon {
+            width: 100%;
+            height: 95%;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="mapCon"></div>
+    <div id="info" class="ol-popup"></div>
+    <script src="../../js/LoadGeoJSONMap.js"></script>
+    <script>
+        //在此图层中，点击要素可以显示其基本信息
+        // 创建一个用于显示要素属性的覆盖层
+        const infoOverlay = new ol.Overlay({
+            element: document.getElementById('info'),
+            positioning: 'bottom-center',
+            offset: [0, -10],
+            stopEvent: false
+        });
+        map.addOverlay(infoOverlay);
+
+        // 单击地图时显示要素属性
+        map.on('singleclick', (event) => {
+            let featureFound = false;
+            let infoContent = ''; 
+            map.forEachFeatureAtPixel(event.pixel, (feature, layer) => {
+                // 获取要素的属性信息
+                const properties = feature.getProperties();
+
+                // 显示属性信息
+                let infoContent = '名称: ' + properties.NAME + '<br>';
+                infoContent += '编号：' + properties.FID + '<br>';
+
+                // 根据要素类型显示不同的属性信息
+                if (properties.feature_type === 'Building') {
+                    infoContent += '类型：建筑物' + '<br>';
+                    infoContent += '周长: ' + properties.SHAPE_Leng + '<br>';
+                    infoContent += '占地面积：' + properties.SHAPE_Area + '<br>';
+                    infoContent += '建筑类型: ' + properties.TYPE + '<br>';
+                    infoContent += '层数: ' + properties.LEVELS + '<br>';
+                }
+                else if (properties.feature_type === 'Road') {
+                    infoContent += '类型：道路' + '<br>';
+                    infoContent += '长度: ' + properties.SHAPE_Leng + '<br>';
+                    infoContent += '道路类型: ' + properties.TYPE + '<br>';
+                    infoContent += '车道数: ' + properties.LANES + '<br>';
+                }
+                else if (properties.feature_type === 'Greenland') {
+                    infoContent += '类型：绿地' + '<br>';
+                    infoContent += '周长: ' + properties.SHAPE_Leng + '<br>';
+                    infoContent += '占地面积：' + properties.SHAPE_Area + '<br>';
+                }
+                else if (properties.feature_type === 'Mountain') {
+                    infoContent += '类型：山体' + '<br>';
+                    infoContent += '周长: ' + properties.SHAPE_Leng + '<br>';
+                    infoContent += '占地面积：' + properties.SHAPE_Area + '<br>';
+                    infoContent += '高度：' + properties.Height + '<br>';
+                }
+                else if (properties.feature_type === 'Water') {
+                    infoContent += '类型：水域' + '<br>';
+                    infoContent += '周长: ' + properties.SHAPE_Leng + '<br>';
+                    infoContent += '占地面积：' + properties.SHAPE_Area + '<br>';
+                }
+                else if (properties.feature_type === 'Sportfield') {
+                    infoContent += '类型：运动场地' + '<br>';
+                    infoContent += '周长: ' + properties.SHAPE_Leng + '<br>';
+                    infoContent += '占地面积：' + properties.SHAPE_Area + '<br>';
+                    infoContent += '场地类型: ' + properties.TYPE + '<br>';
+                }
+                else if (properties.feature_type === 'OpenArea') {
+                    infoContent += '类型：开放广场' + '<br>';
+                    infoContent += '周长: ' + properties.SHAPE_Leng + '<br>';
+                    infoContent += '占地面积：' + properties.SHAPE_Area + '<br>';
+                }
+
+                // 更新覆盖层内容并显示
+                infoOverlay.getElement().innerHTML = infoContent;
+                infoOverlay.setPosition(event.coordinate);
+
+                featureFound = true;
+            });
+
+            // 如果没有找到要素，隐藏覆盖层
+            if (!featureFound) {
+                infoOverlay.setPosition(undefined);
+            }
+        });
+
+        // 为选中要素创建样式
+        const selectStyle = new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: [255, 0, 0, 1],
+                width: 3,
+            }),
+            fill: new ol.style.Fill({
+                color: [255, 0, 0, 0.3],
+            }),
+        });
+
+        // 创建并添加Select交互
+        const selectInteraction = new ol.interaction.Select({
+            condition: ol.events.condition.click,
+            style: selectStyle,
+        });
+        map.addInteraction(selectInteraction);
+
+    </script>
+</body>
+</html>

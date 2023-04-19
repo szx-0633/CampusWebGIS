@@ -1,0 +1,39 @@
+﻿body, html {
+    height: 100%;
+    margin: 0;
+}
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    background-image: url('../../images/background.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.website_name {
+    font-size: 75px;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    margin-top: 20%;
+}
+
+.login-button {
+    padding: 24px 48px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #007BFF;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.login-button:hover {
+    background-color: #0056b3;
+}

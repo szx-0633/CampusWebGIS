@@ -1,0 +1,311 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>交通路况</title>
+    <link href="../../css/ol.css" rel="stylesheet" type="text/css" />
+    <script src="../../libs/ol5/ol.js" type="text/javascript"></script>
+    <!-- 引入第三方插件库 -->
+    <script src="../../libs/jquery-1.11.2.min.js" type="text/javascript"></script>
+    <script src="../../libs/ol5/proj4.js" type="text/javascript"></script>
+    <script src="../../libs/echarts.common.min.js"></script>
+    <!--导入本页面外部样式表-->
+    <link href="../../css/style.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        #mapCon {
+            width: 100%;
+            height: 95%;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="mapCon"></div>
+    <div id="info" class="ol-popup"></div>
+    <div id="chart" style="width: 600px;height:400px;"></div>
+    <div id="pieChart" style="width: 400px; height: 400px; position: absolute; right: 10px; top: 50px;"></div>
+    <script src="../../js/LoadGeoJSONMap.js" type="text/javascript"></script>
+    <script>
+        map.view = new ol.View({
+            center: [12730001.24409, 3572609.85467],
+            projection: 'EPSG:3857',
+            zoom: 16,
+            minZoom: 1
+        });
+
+        async function loadGeoJSON(url) {
+            const response = await fetch(url);
+            const json = await response.json();
+
+            return json;
+        }
+
+        (async function () {
+            const roadsGeoJSON = await loadGeoJSON("../../data/Roads.geojson");
+
+            function getStatusColor(realTimeStatus) {
+                if (realTimeStatus <= 70) {
+                    return 'green';
+                } else if (realTimeStatus <= 90) {
+                    return 'yellow';
+                } else {
+                    return 'red';
+                }
+            }
+
+            function updateRoadColor(fid, realTimeStatus) {
+                // 查找具有给定 FID 的道路,在geojson文件中找到对应路段并赋予颜色
+                const roadFeature = roadsGeoJSON.features.find((feature) => feature.properties.FID == fid);
+
+                if (!roadFeature) {
+                    console.warn('Road with FID', fid, 'not found in Roads.geojson');
+                    return;
+                }
+
+                // 设置道路颜色
+                const roadColor = getStatusColor(realTimeStatus);
+
+                // 创建新的矢量要素
+                const olFeature = new ol.Feature({
+                    geometry: new ol.geom.LineString(roadFeature.geometry.coordinates),
+                });
+
+                // 设置道路样式
+                olFeature.setStyle(
+                    new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: roadColor,
+                            width: 4,
+                        }),
+                    })
+                );
+
+                vectorSource.addFeature(olFeature);
+            }
+
+            //获取和统计全部路段实时路况路况信息
+            function getRoadStatus() {
+                fetch("RoadStatusHandler.ashx?type=RealTime")
+                    .then((response) => response.json())
+                    .then((data) => {
+                        const roadStatusCounts = {
+                            smooth: 0,
+                            congested: 0,
+                            severelyCongested: 0,
+                        };
+
+                        data.forEach((roadStatus) => {
+                            const fid = roadStatus.FID;
+                            const realTimeStatus = roadStatus.RealTime;
+                            updateRoadColor(fid, realTimeStatus);
+
+                            if (realTimeStatus <= 70) {
+                                roadStatusCounts.smooth++;
+                            } else if (realTimeStatus <= 90) {
+                                roadStatusCounts.congested++;
+                            } else {
+                                roadStatusCounts.severelyCongested++;
+                            }
+                        });
+
+                        drawPieChart(roadStatusCounts);
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching road status:", error);
+                    });
+            }
+
+            const RoadFeatures = new ol.format.GeoJSON().readFeatures(roadsGeoJSON);
+
+            const vectorSource = new ol.source.Vector({
+                features: RoadFeatures,
+            });
+
+            const vectorLayer = new ol.layer.Vector({
+                source: vectorSource,
+            });
+            //加载到地图中
+            map.addLayer(vectorLayer);
+
+            vectorLayer.setZIndex(100);
+
+            getRoadStatus();
+
+            //绘制路况统计饼图
+            function drawPieChart(roadStatusCounts) {
+                const pieChartDom = document.getElementById("pieChart");
+                const pieChart = echarts.init(pieChartDom);
+
+                const option = {
+                    title: {
+                        text: '校内实时路况统计',
+                        left: '1%'
+                    },
+                    tooltip: {
+                        trigger: "item",
+                    },
+                    legend: {
+                        orient: "vertical",
+                        right: "right",
+                    },
+                    series: [
+                        {
+                            name: "Road Status",
+                            type: "pie",
+                            radius: "50%",
+                            data: [
+                                { value: roadStatusCounts.smooth, name: "畅通(0-70)" },
+                                { value: roadStatusCounts.congested, name: "拥堵(71-90)" },
+                                { value: roadStatusCounts.severelyCongested, name: "严重拥堵(91-100)" },
+                            ],
+                            itemStyle: {
+                                emphasis: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: "rgba(0, 0, 0, 0.5)",
+                                },
+                            },
+                        },
+                    ],
+                };
+
+                pieChart.setOption(option);
+            }
+        })();
+
+
+
+        //在此图层中，点击要素可以显示其基本信息
+        // 创建一个用于显示要素属性的overlay
+        const infoOverlay = new ol.Overlay({
+            element: document.getElementById('info'),
+            positioning: 'bottom-center',
+            offset: [0, -10],
+            stopEvent: false
+        });
+        map.addOverlay(infoOverlay);
+
+
+        // 单击地图时显示要素属性
+        map.on('singleclick', (event) => {
+            let featureFound = false;
+            let infoContent = '';
+            map.forEachFeatureAtPixel(event.pixel, (feature, layer) => {
+                // 获取要素的属性信息，仅选中要素为道路时显示信息
+                const properties = feature.getProperties();
+                if (properties.feature_type === 'Road') {
+                    // 显示属性信息
+                    let infoContent = '名称: ' + properties.NAME + '<br>';
+                    infoContent += '编号：' + properties.FID + '<br>';
+                    infoContent += '类型：道路' + '<br>';
+                    infoContent += '长度: ' + properties.SHAPE_Leng + '<br>';
+                    infoContent += '道路类型: ' + properties.TYPE + '<br>';
+                    infoContent += '车道数: ' + properties.LANES + '<br>';
+                    // 更新overlay内容并显示
+                    infoOverlay.getElement().innerHTML = infoContent;
+                    infoOverlay.setPosition(event.coordinate);
+
+                    featureFound = true;
+
+                    fid = properties.FID;
+                    roadName = properties.NAME;
+
+                    requestDataAndDrawChart(fid);
+
+                }
+            });
+
+            // 如果没有找到要素，隐藏overlay
+            if (!featureFound) {
+                infoOverlay.setPosition(undefined);
+            }
+        });
+
+        //按照FID查找数据库中对应路段的近5小时路况
+        function requestDataAndDrawChart(fid) {
+            fetch('RoadStatusHandler.ashx?type=single&fid=' + fid)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        var roadData = data[0];
+                        drawChart(roadData, roadName);
+                    }
+                })
+                .catch(error => console.error('请求错误：', error));
+        }
+
+        //绘制单个路段的近5小时路况统计图
+        function drawChart(data, RoadName) {
+            var chartDom = document.getElementById('chart');
+            var myChart = echarts.init(chartDom);
+
+            // 提取数据
+            var timeLabels = ['5小时前', '4小时前', '3小时前', '2小时前', '1小时前', '实时路况'];
+            var values = [
+                data.Former5Hr,
+                data.Former4Hr,
+                data.Former3Hr,
+                data.Former2Hr,
+                data.Former1Hr,
+                data.RealTime,
+            ];
+
+
+            var option = {
+                title: {
+                    text: RoadName + ' 近5小时路况',
+                    left: '1%'
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: timeLabels
+                },
+                yAxis: {
+                    type: 'value',
+                    min: 0,
+                    max: 100,
+                    splitLine: {
+                        lineStyle: {
+                            type: 'dashed'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        type: 'line',
+                        data: values,
+                        lineStyle: {
+                            width: 2,
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#FD0100' },
+                                { offset: 0.7, color: '#FBDB0F' },
+                                { offset: 0.9, color: '#93CE07' },
+                            ]),
+                        },
+                        symbol: 'circle',
+                        symbolSize: 8,
+                        itemStyle: {
+                            color: '#FD0100',
+                        },
+                        markLine: {
+                            silent: true,
+                            lineStyle: {
+                                color: '#333',
+                            },
+                            data: [
+                                { yAxis: 70 },
+                                { yAxis: 90 },
+                            ],
+                        },
+                    },
+                ],
+            };
+
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

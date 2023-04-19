@@ -1,0 +1,71 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>武汉大学校园GIS系统</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!-- 强制360浏览器用WebKit内核 -->
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <link type="text/css" rel="stylesheet" href="css/base.css" />
+    <link href="images/title.ico" rel="shortcut icon" />
+    <!-- 开源库jQuery -->
+    <script src="libs/jquery-1.11.2.min.js"></script>
+    <!-- 系统首页功能库 -->
+    <script type="text/javascript" src="js/init.js"></script>
+</head>
+<body>
+    <div id="header">
+        <a class="logo">
+            <img src="images/WHU.png" /> 
+            <span>已登录：管理员（测试）</span>
+            <span> 武汉大学校园GIS系统</span>
+        </a>
+    </div>
+    <div id="content">
+        <div class="leftsidebar_box">
+            <div class="line"></div>
+            <dl class="CampusLife">
+                <dt class="first_dt">校园生活</dt>
+                <dd onclick="setCore('CampusMap','MapControls')">校园地图</dd>
+                <dd onclick="setCore('ThirdPartyMap','MapControls')">第三方地图</dd>
+                <dd onclick="setCore('CampusFood','MapQuery')">校园美食(建设中)</dd>
+                <dd onclick="setCore('SportsField','MapQuery')">运动场地(建设中)</dd>
+                <dd onclick="setCore('CampusNavi','MapQuery')">校内导航(建设中)</dd>
+            </dl>
+
+            <dl class="TrafficInfo">
+                <dt>交通服务</dt>
+                <dd onclick="setCore('RoadStatus', 'TrafficQuery')">交通路况</dd>
+                <dd onclick="setCore('Accident', 'TrafficQuery')">事故上报</dd>
+                <dd onclick="setCore('Parking', 'TrafficQuery')">停车服务(建设中) </dd>
+                <dd onclick="setCore('CampusBus','TrafficQuery')">校园公交(建设中)</dd>
+            </dl>
+
+            <dl class="VisitorService">
+                <dt class="Management">访客服务(建设中)</dt>
+                <dd onclick="setCore('CherryBlossom','MapQuery')">赏樱指南</dd>
+                <dd onclick="setCore('ShinanBlossom','MapQuery')">石楠分布</dd>
+                <dd onclick="setCore('Toilet','MapQuery')">卫生间查询</dd>
+                <dd onclick="setCore('GateStatus','TrafficQuery')">校门通行情况</dd>
+            </dl>
+
+            <dl class="STVisual">
+                <dt>时空数据分析(建设中)</dt>
+                <dd onclick="setCore('HeatMap', 'Analysis')">校园热力图</dd>
+                <dd onclick="setCore('TouristData', 'Analysis')">游客时空分析</dd>
+                <dd onclick="setCore('TrackData', 'Analysis')">出行轨迹大数据</dd>
+                <dd onclick="setCore('BicycleData', 'Analysis')">共享单车大数据</dd>
+            </dl>
+
+            <dl class="DataManagement">
+                <dt>基础地理数据管理(建设中)</dt>
+                <dd onclick="setCore('BasicManagement', 'MapControls')">数据管理</dd>
+                <dd onclick="setCore('DataImport', 'MapControls')">数据导入</dd>
+            </dl>
+        </div>
+        <div class="iframe_wrapper">
+            <iframe id="container_iframe" name="container_iframe" scrolling="no"></iframe>
+        </div>
+    </div>
+</body>
+</html>

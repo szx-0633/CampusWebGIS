@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "OL5Demo", ".", "{BEEC5410-1864-428C-BB14-CA263CE5BA02}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_62253"
+		Debug.AspNetCompiler.PhysicalPath = "..\OL5Demo\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_62253\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_62253"
+		Release.AspNetCompiler.PhysicalPath = "..\OL5Demo\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_62253\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "62253"
+		SlnRelativePath = "..\OL5Demo\"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BEEC5410-1864-428C-BB14-CA263CE5BA02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEEC5410-1864-428C-BB14-CA263CE5BA02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {421317EC-75FE-40AD-B55B-E0E9AF540828}
+	EndGlobalSection
+EndGlobal

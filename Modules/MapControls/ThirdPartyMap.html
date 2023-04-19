@@ -1,0 +1,41 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>第三方地图显示</title>
+    <link href="../../css/ol.css" rel="stylesheet" type="text/css" />
+    <script src="../../libs/ol5/ol.js"></script>
+    <style type="text/css">
+        #mapCon {
+            width: 100%;
+            height: 95%;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="mapCon">
+    </div>
+    <script type="text/javascript">
+        var gaodeMapLayer = new ol.layer.Tile({
+            title: "高德地图",
+            source: new ol.source.XYZ({
+                url: 'http://wprd0{1-4}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}',
+                wrapX: false
+            })
+        });
+        var map = new ol.Map({
+            layers: [gaodeMapLayer],
+            view: new ol.View({
+                center: [12730997.0000, 3572218.0000],
+                projection: 'EPSG:3857',
+                zoom: 16,
+                minZoom: 1
+            }),
+            target: 'mapCon',
+            controls: [new ol.control.MousePosition()]//显示鼠标指针的X、Y坐标
+        });
+    </script>
+</body>
+</html>
